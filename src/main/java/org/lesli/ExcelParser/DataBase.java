@@ -1,5 +1,7 @@
 package org.lesli.ExcelParser;
 
+import org.lesli.ExcelParser.model.Sales;
+
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -59,13 +61,13 @@ public class DataBase {
         Class.forName("com.mysql.cj.jdbc.Driver");
         for (Sales sale : sales) {
             statement.executeUpdate(
-                    "INSERT INTO shipments VALUES ('" + sale.date + "', \n" +
+                    "INSERT INTO shipments VALUES ('" + sale.getDate() + "', \n" +
                             "(SELECT id \n" +
                             "FROM clients c\n" +
-                            "WHERE c.name = '" + sale.company +"'), \n" +
+                            "WHERE c.name = '" + sale.getCompany() +"'), \n" +
                             "(SELECT id \n" +
                             "FROM products p\n" +
-                            "WHERE p.name = '" + sale.product + "'),"  + sale.amount +");");
+                            "WHERE p.name = '" + sale.getProduct() + "'),"  + sale.getAmount() +");");
         }
         connection.close();
     }
