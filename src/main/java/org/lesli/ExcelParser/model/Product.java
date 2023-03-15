@@ -6,22 +6,28 @@ public class Product {
     private String type;
     public Product () {
     }
-    public void setId(int id) {
-        this.id = id;
-    }
+
     public int getId() {
         return id;
     }
-    public void setName(String name) {
-        this.name = name;
+
+    public void setId(int id) {
+        this.id = id;
     }
+
     public String getName() {
         return name;
     }
-    public void setType(String type) {
-        this.type = type;
+
+    public void setName(String name) {
+        this.name = name;
     }
+
     public String getType() {
         return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 }

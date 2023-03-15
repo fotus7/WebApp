@@ -1,4 +1,4 @@
-package org.lesli.ExcelParser.model;
+package org.lesli.ExcelParser;
 
 public class Sales {
     private int id;

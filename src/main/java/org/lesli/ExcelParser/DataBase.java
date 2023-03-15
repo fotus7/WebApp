@@ -1,7 +1,5 @@
 package org.lesli.ExcelParser;
 
-import org.lesli.ExcelParser.model.Sales;
-
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;

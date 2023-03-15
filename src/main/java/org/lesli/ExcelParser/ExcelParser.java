@@ -5,7 +5,6 @@ import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.lesli.ExcelParser.model.Sales;
 
 import java.io.*;
 import java.nio.charset.Charset;
@@ -19,21 +18,25 @@ public class ExcelParser {
 
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
     private static final TreeSet<String> clients = new TreeSet<>();
-    private static final HashMap<String, String> products = new HashMap<>();
+    //private static final HashMap<String, String> products = new HashMap<>();
+    private static final TreeSet<String> products = new TreeSet<>();
     private static final ArrayList<Sales> sales = new ArrayList<>();
 
     public static void main(String[] args) throws IOException, SQLException, ClassNotFoundException, InvalidFormatException {
         Iterator<File> it = FileUtils.iterateFiles(new File("src/main/resources/"), new String[]{"xlsx"}, false);
         while (it.hasNext()) {
-            File file = new File(String.valueOf(it.next()));
+            File file = it.next();
             //clientsParser(file);
-            //productsParser(file);
-            salesParser(file);
+            productsParser(file);
+            //salesParser(file);
         }
-        testSales(sales);
+        testProducts();
         //DataBase.addClients(clients);
         //DataBase.addProducts(products);
         //DataBase.addSales(sales);
+    }
+    public static void ultimateParser (File file) {
+
     }
     public static void clientsParser (File file) throws IOException, InvalidFormatException {
         TreeSet<String> clients = new TreeSet<>();
@@ -49,31 +52,34 @@ public class ExcelParser {
         workbook.close();
     }
     public static void productsParser (File file) throws IOException, InvalidFormatException {
-        HashMap<String, String> products = new HashMap<>();
+        //HashMap<String, String> products = new HashMap<>();
+        TreeSet<String> products = new TreeSet<>();
         Workbook workbook = new XSSFWorkbook(file);
         Sheet sheet = workbook.getSheetAt(1);
-        int counter = 0;
+        //int counter = 0;
         String value = "";
         for (int i = 3; i < sheet.getLastRowNum(); i++) {
             value = sheet.getRow(i).getCell(0).getStringCellValue();
-            if (value.equals("")) break;
+            if (value.equals("всего")) break;
             if ((value.equals("итого"))) {
-                counter++;
+                //counter++;
                 continue;
             }
-            switch (counter) {
-                case 0:
-                    products.put(value, "Ароматизатор");
-                    break;
-                case 1:
-                    products.put(value, "Краситель");
-                    break;
-                case 2:
-                    products.put(value, "Подсластитель");
-                    break;
-            }
+//            switch (counter) {
+//                case 0:
+//                    products.put(value, "Ароматизатор");
+//                    break;
+//                case 1:
+//                    products.put(value, "Краситель");
+//                    break;
+//                case 2:
+//                    products.put(value, "Подсластитель");
+//                    break;
+//            }
+            products.add(value);
         }
-        ExcelParser.products.putAll(products);
+        //ExcelParser.products.putAll(products);
+        ExcelParser.products.addAll(products);
         workbook.close();
     }
     public static void salesParser (File file) throws IOException, InvalidFormatException {
@@ -106,12 +112,13 @@ public class ExcelParser {
             FileUtils.writeStringToFile(tFile, c + "\n", Charset.defaultCharset(), true);
         }
     }
-    public static void testProducts (HashMap<String, String> products) throws IOException {
-        for (String key : products.keySet()) {
-            FileUtils.writeStringToFile(tFile, key + ", " + products.get(key) + "\n", Charset.defaultCharset(), true);
+    public static void testProducts () throws IOException {
+        for (String p : products) {
+            FileUtils.writeStringToFile(tFile, p + "\n", Charset.defaultCharset(), true);
         }
     }
     public static void testSales (List<Sales> sales) throws IOException {
+        System.out.println(sales.size());
         for (Sales sale: sales) {
             FileUtils.writeStringToFile(tFile, sale.toString() + "\n", Charset.defaultCharset(), true);
         }

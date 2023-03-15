@@ -8,16 +8,28 @@ public class Company {
     private Set<Product> products;
     public Company() {
     }
-    public void setId(int id) {
-        this.id = id;
-    }
+
     public int getId() {
         return id;
     }
-    public void setName (String name) {
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
         this.name = name;
     }
-    public String getName () {
-        return name;
+
+    public Set<Product> getProducts() {
+        return products;
+    }
+
+    public void setProducts(Set<Product> products) {
+        this.products = products;
     }
 }
