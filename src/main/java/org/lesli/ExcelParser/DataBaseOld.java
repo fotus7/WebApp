@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.TreeSet;
 
-public class DataBase {
+public class DataBaseOld {
     private static final String USER_NAME = "root";
     private static final String PASSWORD = "test";
     private static final String URL = "jdbc:mysql://127.0.0.1:3306/sales";

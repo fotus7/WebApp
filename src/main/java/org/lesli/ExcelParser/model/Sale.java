@@ -1,7 +1,11 @@
 package org.lesli.ExcelParser.model;
 
+import jakarta.persistence.*;
+
 import java.util.Date;
 
+@Entity
+@Table(name = "Sales")
 public class Sale {
     private int id;
     private Date date;
@@ -11,7 +15,16 @@ public class Sale {
 
     public Sale () {
     }
+    public Sale (Date date, Company company, Product product, double amount) {
+        this.date = date;
+        this.company = company;
+        this.product = product;
+        this.amount = amount;
+    }
 
+    @Id
+    @GeneratedValue
+    @Column(name = "sale_id", unique = true, nullable = false)
     public int getId() {
         return id;
     }
@@ -20,6 +33,8 @@ public class Sale {
         this.id = id;
     }
 
+    @Column(nullable = false)
+    @Temporal(TemporalType.DATE)
     public Date getDate() {
         return date;
     }
@@ -28,6 +43,8 @@ public class Sale {
         this.date = date;
     }
 
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "company_id")
     public Company getCompany() {
         return company;
     }
@@ -36,6 +53,8 @@ public class Sale {
         this.company = company;
     }
 
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "product_id")
     public Product getProduct() {
         return product;
     }
@@ -44,6 +63,7 @@ public class Sale {
         this.product = product;
     }
 
+    @Column(nullable = false)
     public double getAmount() {
         return amount;
     }
