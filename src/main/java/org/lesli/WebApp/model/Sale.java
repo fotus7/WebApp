@@ -1,17 +1,20 @@
-package org.lesli.ExcelParser.model;
+package org.lesli.WebApp.model;
 
 import jakarta.persistence.*;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
+
 
 @Entity
 @Table(name = "Sales")
-public class Sale {
-    private int id;
+public class Sale implements Comparable<Sale> {
+    private Long id;
     private Date date;
     private Company company;
     private Product product;
     private double amount;
+    private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
     public Sale () {
     }
@@ -25,11 +28,11 @@ public class Sale {
     @Id
     @GeneratedValue
     @Column(name = "sale_id", unique = true, nullable = false)
-    public int getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -70,6 +73,23 @@ public class Sale {
 
     public void setAmount(double amount) {
         this.amount = amount;
+    }
+
+    @Override
+    public int compareTo(Sale o) {
+        if (this.date.compareTo(o.date) == 0) {
+            if (this.company.getName().compareTo(o.company.getName()) == 0) {
+                if (this.product.getName().compareTo(o.product.getName()) == 0) {
+                    if (this.amount < o.amount) return -1;
+                    else return 1;
+                } else return this.product.getName().compareTo(o.product.getName());
+            } else return this.company.getName().compareTo(o.company.getName());
+        } else return this.date.compareTo(o.date);
+    }
+
+    @Override
+    public String toString () {
+        return dateFormat.format(date) + " " + company.getName() + " " + product.getName() + " " + amount;
     }
 }
 

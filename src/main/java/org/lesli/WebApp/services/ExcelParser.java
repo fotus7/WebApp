@@ -1,29 +1,28 @@
-package org.lesli.ExcelParser;
+package org.lesli.WebApp.services;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.lesli.ExcelParser.model.Company;
-import org.lesli.ExcelParser.model.Product;
-import org.lesli.ExcelParser.model.Sale;
+import org.lesli.WebApp.model.Company;
+import org.lesli.WebApp.model.Product;
+import org.lesli.WebApp.model.Sale;
+import org.springframework.stereotype.Component;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 import java.nio.charset.Charset;
-import java.sql.SQLException;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
+@Component
 public class ExcelParser {
-
     private static final File tFile = new File("src/main/resources/test.txt");
-    private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-    private static final Set<Sale> sales = new HashSet<>();
+    private static final Set<Sale> sales = new TreeSet<>();
     private static final List<Company> companies = new ArrayList<>();
     private static final List<Product> products = new ArrayList<>();
 
-    public static void main(String[] args) throws IOException, SQLException, ClassNotFoundException, InvalidFormatException {
+    public Set<Sale> process () throws IOException, InvalidFormatException {
         Iterator<File> it = FileUtils.iterateFiles(new File("src/main/resources/"), new String[]{"xlsx"}, false);
         while (it.hasNext()) {
             sales.addAll(ultimateParser(it.next()));
@@ -31,7 +30,18 @@ public class ExcelParser {
         System.out.println("Number of companies: " + companies.size());
         System.out.println("Number of products: " + products.size());
         System.out.println("Total number of sales: " + sales.size());
-        DataBase.storeData(sales);
+        return sales;
+    }
+
+    public Set<Sale> process1 () throws IOException, InvalidFormatException {
+        Iterator<File> it = FileUtils.iterateFiles(new File("F:\\Test"), new String[]{"xlsx"}, false);
+        while (it.hasNext()) {
+            sales.addAll(ultimateParser(it.next()));
+        }
+        System.out.println("Number of companies: " + companies.size());
+        System.out.println("Number of products: " + products.size());
+        System.out.println("Total number of sales: " + sales.size());
+        return sales;
     }
 
     public static Set<Sale> ultimateParser (File file) throws IOException, InvalidFormatException {
@@ -62,23 +72,9 @@ public class ExcelParser {
         workbook.close();
         return sales;
     }
-    public static void testLine (String value) throws IOException {
-        FileUtils.writeStringToFile(tFile, value, Charset.defaultCharset(), true);
-    }
-    public static void testCompanies () throws IOException {
-        //System.out.println(companies.size());
-        /*for (String c : companies) {
-            FileUtils.writeStringToFile(tFile, c + "\n", Charset.defaultCharset(), true);
-        }*/
-    }
-    public static void testProducts (Set<String> products) throws IOException {
-        for (String p : products) {
-            FileUtils.writeStringToFile(tFile, p + "\n", Charset.defaultCharset(), true);
-        }
-    }
-    public static void testSales (List<Sales> sales) throws IOException {
-        for (Sales sale: sales) {
-            FileUtils.writeStringToFile(tFile, sale.toString() + "\n", Charset.defaultCharset(), true);
+    public static void testSales (Set<Sale> sales) throws IOException {
+        for (Sale s : sales) {
+            FileUtils.writeStringToFile(tFile, s.toString() + "\n", Charset.defaultCharset(), true);
         }
     }
 }

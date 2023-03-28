@@ -1,17 +1,16 @@
-package org.lesli.ExcelParser.model;
+package org.lesli.WebApp.model;
 
 import jakarta.persistence.*;
 
-import java.util.HashSet;
 import java.util.Set;
+import java.util.TreeSet;
 
 @Entity
 @Table(name="Companies")
 public class Company {
-
-    private int id;
+    private Long id;
     private String name;
-    private Set<Sale> sales = new HashSet<>();
+    private Set<Sale> sales = new TreeSet<>();
     public Company() {
     }
 
@@ -22,11 +21,11 @@ public class Company {
     @Id
     @GeneratedValue
     @Column(name = "company_id", unique = true, nullable = false)
-    public int getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
