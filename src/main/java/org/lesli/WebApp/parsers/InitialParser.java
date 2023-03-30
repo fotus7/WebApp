@@ -1,4 +1,4 @@
-package org.lesli.WebApp.services;
+package org.lesli.WebApp.parsers;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
@@ -12,15 +12,13 @@ import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.util.*;
 
 @Component
-public class ExcelParser {
-    private static final File tFile = new File("src/main/resources/test.txt");
-    private static final Set<Sale> sales = new TreeSet<>();
-    private static final List<Company> companies = new ArrayList<>();
-    private static final List<Product> products = new ArrayList<>();
+public class InitialParser {
+    private final Set<Sale> sales = new TreeSet<>();
+    private final List<Company> companies = new ArrayList<>();
+    private final List<Product> products = new ArrayList<>();
 
     public Set<Sale> process () throws IOException, InvalidFormatException {
         Iterator<File> it = FileUtils.iterateFiles(new File("src/main/resources/"), new String[]{"xlsx"}, false);
@@ -44,7 +42,7 @@ public class ExcelParser {
         return sales;
     }
 
-    public static Set<Sale> ultimateParser (File file) throws IOException, InvalidFormatException {
+    public Set<Sale> ultimateParser (File file) throws IOException, InvalidFormatException {
         Workbook workbook = new XSSFWorkbook(file);
         Sheet sheet = workbook.getSheetAt(0);
         Set<Sale> sales = new HashSet<>();
@@ -71,10 +69,5 @@ public class ExcelParser {
         }
         workbook.close();
         return sales;
-    }
-    public static void testSales (Set<Sale> sales) throws IOException {
-        for (Sale s : sales) {
-            FileUtils.writeStringToFile(tFile, s.toString() + "\n", Charset.defaultCharset(), true);
-        }
     }
 }

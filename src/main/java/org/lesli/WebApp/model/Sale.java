@@ -1,5 +1,6 @@
 package org.lesli.WebApp.model;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import jakarta.persistence.*;
 
 import java.text.SimpleDateFormat;
