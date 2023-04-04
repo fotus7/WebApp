@@ -45,7 +45,7 @@ public class InitialParser {
     public Set<Sale> ultimateParser (File file) throws IOException, InvalidFormatException {
         Workbook workbook = new XSSFWorkbook(file);
         Sheet sheet = workbook.getSheetAt(0);
-        Set<Sale> sales = new HashSet<>();
+        Set<Sale> sales = new TreeSet<>();
         Date date;
         String company;
         String product;

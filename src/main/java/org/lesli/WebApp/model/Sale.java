@@ -27,7 +27,7 @@ public class Sale implements Comparable<Sale> {
     }
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "sale_id", unique = true, nullable = false)
     public Long getId() {
         return id;
@@ -91,6 +91,16 @@ public class Sale implements Comparable<Sale> {
     @Override
     public String toString () {
         return dateFormat.format(date) + " " + company.getName() + " " + product.getName() + " " + amount;
+    }
+
+    @Override
+    public boolean equals (Object obj) {
+        if (obj == this) return true;
+        if (!(obj instanceof Sale)) return false;
+        Sale s = (Sale) obj;
+        return (this.date.equals(s.getDate()) && this.company.equals(s.getCompany()))
+                && this.product.equals(s.getProduct()) && this.amount == s.getAmount();
+
     }
 }
 

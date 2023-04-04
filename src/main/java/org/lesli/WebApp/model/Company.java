@@ -19,7 +19,7 @@ public class Company {
     }
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "company_id", unique = true, nullable = false)
     public Long getId() {
         return id;
@@ -52,6 +52,6 @@ public class Company {
         if (obj == this) return true;
         if (!(obj instanceof Company)) return false;
         Company c = (Company) obj;
-        return this.getName().equals(c.getName());
+        return this.name.equals(c.getName());
     }
 }

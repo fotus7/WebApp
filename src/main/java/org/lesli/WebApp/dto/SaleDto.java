@@ -1,5 +1,6 @@
 package org.lesli.WebApp.dto;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class SaleDto {
@@ -9,6 +10,7 @@ public class SaleDto {
     private String product;
     private double amount;
 
+    private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
     public SaleDto (Date date, String company, String product, double amount) {
         this.date = date;
         this.company = company;
@@ -46,5 +48,10 @@ public class SaleDto {
 
     public void setAmount(double amount) {
         this.amount = amount;
+    }
+
+    @Override
+    public String toString() {
+        return dateFormat.format(date) + " " + this.company + " " + this.product + " " + this.amount + "\n";
     }
 }

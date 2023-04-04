@@ -15,5 +15,7 @@ public class WebApp {
 		ConfigurableApplicationContext context = SpringApplication.run(WebApp.class, args);
 		SaleService saleService = (SaleService) context.getBean("saleService");
 		//saleService.save();
+		//saleService.saveNew();
+		System.out.println("Done");
 	}
 }
