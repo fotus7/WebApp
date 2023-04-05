@@ -81,8 +81,7 @@ public class Sale implements Comparable<Sale> {
         if (this.date.compareTo(o.date) == 0) {
             if (this.company.getName().compareTo(o.company.getName()) == 0) {
                 if (this.product.getName().compareTo(o.product.getName()) == 0) {
-                    if (this.amount < o.amount) return -1;
-                    else return 1;
+                    return Double.compare(this.amount, o.amount);
                 } else return this.product.getName().compareTo(o.product.getName());
             } else return this.company.getName().compareTo(o.company.getName());
         } else return this.date.compareTo(o.date);
@@ -96,11 +95,17 @@ public class Sale implements Comparable<Sale> {
     @Override
     public boolean equals (Object obj) {
         if (obj == this) return true;
-        if (!(obj instanceof Sale)) return false;
-        Sale s = (Sale) obj;
-        return (this.date.equals(s.getDate()) && this.company.equals(s.getCompany()))
-                && this.product.equals(s.getProduct()) && this.amount == s.getAmount();
+        if (!(obj instanceof Sale s)) return false;
+        boolean result = this.date.equals(s.date) && this.company.equals(s.getCompany());
+        result = result && this.product.equals(s.getProduct());
+        result = result && (this.amount == s.getAmount());
+        return result;
 
+    }
+
+    @Override
+    public int hashCode () {
+        return date.hashCode() + company.hashCode() + product.hashCode() + (int) amount;
     }
 }
 

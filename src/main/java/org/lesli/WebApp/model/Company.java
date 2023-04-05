@@ -50,8 +50,12 @@ public class Company {
     @Override
     public boolean equals(Object obj) {
         if (obj == this) return true;
-        if (!(obj instanceof Company)) return false;
-        Company c = (Company) obj;
+        if (!(obj instanceof Company c)) return false;
         return this.name.equals(c.getName());
+    }
+
+    @Override
+    public int hashCode() {
+        return name.hashCode();
     }
 }

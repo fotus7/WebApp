@@ -4,11 +4,8 @@ import jakarta.transaction.Transactional;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.lesli.WebApp.dto.SaleDto;
 import org.lesli.WebApp.dto.mappers.SaleMapper;
-import org.lesli.WebApp.model.Company;
-import org.lesli.WebApp.model.Product;
 import org.lesli.WebApp.model.Sale;
-import org.lesli.WebApp.parsers.InitialParser;
-import org.lesli.WebApp.parsers.NewDataParser;
+import org.lesli.WebApp.parsers.ExcelParser;
 import org.lesli.WebApp.repository.SaleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,10 +19,7 @@ import java.util.Set;
 public class SaleService {
 
     @Autowired
-    private InitialParser initialParser;
-
-    @Autowired
-    private NewDataParser newDataParser;
+    private ExcelParser excelParser;
 
     @Autowired
     private SaleRepository saleRepository;
@@ -33,30 +27,35 @@ public class SaleService {
     @Autowired
     private SaleMapper saleMapper;
 
-    public void save() throws IOException, InvalidFormatException {
-        saleRepository.saveAll(initialParser.process());
+    public void saveOld() throws IOException, InvalidFormatException {
+        saleRepository.saveAll(excelParser.getInitialData());
     }
 
-    public List<SaleDto> update() throws IOException, InvalidFormatException {
-        Set<Sale> sales = newDataParser.addData();
-        saveNew(sales);
+    @Transactional
+    private void save(Set<Sale> sales) {
+        saleRepository.saveAll(sales);
+
+    }
+
+    private SaleDto[] convert (Set<Sale> sales) {
         List<SaleDto> salesDto = new ArrayList<>();
         for (Sale s : sales.stream().toList()) {
             salesDto.add(saleMapper.toDto(s));
         }
-        return salesDto;
+        SaleDto[] salesArray = new SaleDto[sales.size()];
+        salesDto.toArray(salesArray);
+        return salesArray;
     }
-    @Transactional
-    public void saveNew(Set<Sale> sales) {
-        saleRepository.saveAll(sales);
 
+    public SaleDto[] update() throws IOException, InvalidFormatException {
+        Set<Sale> sales = excelParser.updateData();
+        save(sales);
+        return convert(sales);
     }
-    public List<SaleDto> get() {
-        List<Sale> sales = saleRepository.findAll();
-        List<SaleDto> salesDto = new ArrayList<>();
-        for (Sale s : sales) {
-            salesDto.add(saleMapper.toDto(s));
-        }
-        return salesDto;
+
+    public SaleDto[] get() throws IOException, InvalidFormatException {
+        Set<Sale> sales = excelParser.getInitialData();
+        save(sales);
+        return convert(sales);
     }
 }

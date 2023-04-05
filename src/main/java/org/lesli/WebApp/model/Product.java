@@ -50,8 +50,12 @@ public class Product {
     @Override
     public boolean equals(Object obj) {
         if (obj == this) return true;
-        if (!(obj instanceof Product)) return false;
-        Product p = (Product) obj;
+        if (!(obj instanceof Product p)) return false;
         return this.name.equals(p.getName());
+    }
+
+    @Override
+    public int hashCode() {
+        return name.hashCode();
     }
 }

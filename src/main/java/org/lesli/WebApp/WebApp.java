@@ -11,11 +11,11 @@ import java.io.IOException;
 @SpringBootApplication
 public class WebApp {
 
-	public static void main(String[] args) throws IOException, InvalidFormatException {
-		ConfigurableApplicationContext context = SpringApplication.run(WebApp.class, args);
-		SaleService saleService = (SaleService) context.getBean("saleService");
-		//saleService.save();
-		//saleService.saveNew();
-		System.out.println("Done");
-	}
+    public static void main(String[] args) throws IOException, InvalidFormatException {
+        ConfigurableApplicationContext context = SpringApplication.run(WebApp.class, args);
+        SaleService saleService = (SaleService) context.getBean("saleService");
+        saleService.saveOld();
+        //saleService.saveNew();
+        System.out.println("Done");
+    }
 }

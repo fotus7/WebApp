@@ -20,8 +20,7 @@ import java.nio.charset.Charset;
 import java.util.*;
 
 @Component
-public class NewDataParser {
-
+public class ExcelParser {
     @Autowired
     private CompanyRepository companyRepository;
 
@@ -31,15 +30,36 @@ public class NewDataParser {
     @Autowired
     private SaleRepository saleRepository;
 
-    public Set<Sale> addData () throws IOException, InvalidFormatException {
-        File file = new File("src/main/resources/new/feb.xlsm");
+    private final Set<Sale> sales = new TreeSet<>();
+    private final List<Company> companies = new ArrayList<>();
+    private final List<Product> products = new ArrayList<>();
+
+    public Set<Sale> getInitialData() throws IOException, InvalidFormatException {
+        Iterator<File> it = FileUtils.iterateFiles(new File("src/main/resources/"), new String[]{"xlsx"}, false);
+        while (it.hasNext()) {
+            sales.addAll(ultimateParser(it.next()));
+        }
+        System.out.println("Number of companies: " + companies.size());
+        System.out.println("Number of products: " + products.size());
+        System.out.println("Total number of sales: " + sales.size());
+        return sales;
+    }
+
+    public Set<Sale> updateData() throws IOException, InvalidFormatException {
+        Set<Sale> sales = new TreeSet<>();
+        Iterator<File> it = FileUtils.iterateFiles(new File("src/main/resources/new"), new String[]{"xlsm"}, false);
+        while (it.hasNext()) {
+            sales.addAll(ultimateParser(it.next()));
+        }
+        return sales;
+    }
+
+    private Set<Sale> ultimateParser(File file) throws IOException, InvalidFormatException {
         Workbook workbook = new XSSFWorkbook(file);
         Sheet sheet = workbook.getSheetAt(0);
         Set<Sale> sales = new TreeSet<>();
         int startRowNum = getRowNum(sheet);
         if (startRowNum == 0) return sales;
-        List<Company> companies = new ArrayList<>();
-        List<Product> products = new ArrayList<>();
         Date date;
         String company;
         String product;
@@ -57,29 +77,32 @@ public class NewDataParser {
                     Product p = new Product(product);
                     if (products.contains(p)) p = products.get(products.indexOf(p));
                     else products.add(p);
-                    if (companyRepository.existsCompanyByName(company)) {
-                        if (productRepository.existsProductByName(product)) {
-                            sales.add(new Sale(date, companyRepository.findByNameIs(company), productRepository.findByNameIs(product), amount));
-                            continue;
-                        }
-                        sales.add(new Sale(date, companyRepository.findByNameIs(company), p, amount));
-                        continue;
-                    }
-                    if (productRepository.existsProductByName(product)) {
-                        sales.add(new Sale(date, c, productRepository.findByNameIs(product), amount));
-                        continue;
-                    }
-                    sales.add(new Sale(date, c, p, amount));
+                    //sales.add(new Sale(date, c, p, amount));
+                    sales.add(saleFactory(date, c, p, amount));
                 }
             }
         }
         workbook.close();
-        test(sales);
+        //test(sales);
         return sales;
     }
 
-    private int getRowNum (Sheet sheet) {
+    private Sale saleFactory(Date date, Company c, Product p, double amount) {
+        if (companyRepository.existsCompanyByName(c.getName())) {
+            if (productRepository.existsProductByName(p.getName())) {
+                return new Sale(date, companyRepository.findByNameIs(c.getName()), productRepository.findByNameIs(p.getName()), amount);
+            }
+            return new Sale(date, companyRepository.findByNameIs(c.getName()), p, amount);
+        }
+        if (productRepository.existsProductByName(p.getName())) {
+            return new Sale(date, c, productRepository.findByNameIs(p.getName()), amount);
+        }
+        return new Sale(date, c, p, amount);
+    }
+
+    private int getRowNum(Sheet sheet) {
         Sale lastAddedSale = saleRepository.findTopByOrderByIdDesc();
+        if (lastAddedSale == null) return 1;
         Date date;
         String company;
         String product;
@@ -102,10 +125,10 @@ public class NewDataParser {
         return 0;
     }
 
-    private void test (Set<Sale> sales) throws IOException {
+    private void test(Set<Sale> sales) throws IOException {
         File file = new File("src/main/resources/test.txt");
         for (Sale s : sales) {
-            FileUtils.write(file, s.toString() + "\n", Charset.defaultCharset() ,true);
+            FileUtils.write(file, s.toString() + "\n", Charset.defaultCharset(), true);
         }
     }
 }
