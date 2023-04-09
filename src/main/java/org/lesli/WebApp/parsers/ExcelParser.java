@@ -29,13 +29,12 @@ public class ExcelParser {
 
     @Autowired
     private SaleRepository saleRepository;
-
-    private final Set<Sale> sales = new TreeSet<>();
     private final List<Company> companies = new ArrayList<>();
     private final List<Product> products = new ArrayList<>();
 
     public Set<Sale> getInitialData() throws IOException, InvalidFormatException {
-        Iterator<File> it = FileUtils.iterateFiles(new File("src/main/resources/"), new String[]{"xlsx"}, false);
+        Set<Sale> sales = new TreeSet<>();
+        Iterator<File> it = FileUtils.iterateFiles(new File("src/main/resources/"), new String[]{"xlsx", "xlsm"}, false);
         while (it.hasNext()) {
             sales.addAll(ultimateParser(it.next()));
         }
@@ -47,7 +46,7 @@ public class ExcelParser {
 
     public Set<Sale> updateData() throws IOException, InvalidFormatException {
         Set<Sale> sales = new TreeSet<>();
-        Iterator<File> it = FileUtils.iterateFiles(new File("src/main/resources/new"), new String[]{"xlsm"}, false);
+        Iterator<File> it = FileUtils.iterateFiles(new File("src/main/resources/new"), new String[]{"xlsx", "xlsm"}, false);
         while (it.hasNext()) {
             sales.addAll(ultimateParser(it.next()));
         }
@@ -59,7 +58,10 @@ public class ExcelParser {
         Sheet sheet = workbook.getSheetAt(0);
         Set<Sale> sales = new TreeSet<>();
         int startRowNum = getRowNum(sheet);
-        if (startRowNum == 0) return sales;
+        if (startRowNum == 0) {
+            workbook.close();
+            return sales;
+        }
         Date date;
         String company;
         String product;
@@ -77,7 +79,6 @@ public class ExcelParser {
                     Product p = new Product(product);
                     if (products.contains(p)) p = products.get(products.indexOf(p));
                     else products.add(p);
-                    //sales.add(new Sale(date, c, p, amount));
                     sales.add(saleFactory(date, c, p, amount));
                 }
             }
@@ -100,7 +101,7 @@ public class ExcelParser {
         return new Sale(date, c, p, amount);
     }
 
-    private int getRowNum(Sheet sheet) {
+    private int getRowNum(Sheet sheet) throws IOException, InvalidFormatException {
         Sale lastAddedSale = saleRepository.findTopByOrderByIdDesc();
         if (lastAddedSale == null) return 1;
         Date date;

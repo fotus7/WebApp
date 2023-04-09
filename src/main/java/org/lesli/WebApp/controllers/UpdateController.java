@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
-import java.util.List;
 
 @RestController
 @RequestMapping("/update")
@@ -20,8 +19,8 @@ public class UpdateController {
     SaleService saleService;
 
     @PostMapping
-    @CrossOrigin("*")
+    @CrossOrigin(origins = "*")
     public SaleDto[] updateSales() throws IOException, InvalidFormatException {
-        return saleService.update();
+        return saleService.updateData();
     }
 }

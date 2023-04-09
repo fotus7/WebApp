@@ -27,8 +27,20 @@ public class SaleService {
     @Autowired
     private SaleMapper saleMapper;
 
-    public void saveOld() throws IOException, InvalidFormatException {
-        saleRepository.saveAll(excelParser.getInitialData());
+    public SaleDto[] getData() throws IOException, InvalidFormatException {
+        List<Sale> sales = saleRepository.findAll();
+        if (sales.isEmpty()) {
+            Set<Sale> salesSet = excelParser.getInitialData();
+            save(salesSet);
+            return convert(salesSet.stream().toList());
+        }
+        return convert(sales);
+    }
+
+    public SaleDto[] updateData() throws IOException, InvalidFormatException {
+        Set<Sale> sales = excelParser.updateData();
+        save(sales);
+        return convert(sales.stream().toList());
     }
 
     @Transactional
@@ -37,25 +49,13 @@ public class SaleService {
 
     }
 
-    private SaleDto[] convert (Set<Sale> sales) {
+    private SaleDto[] convert (List<Sale> sales) {
         List<SaleDto> salesDto = new ArrayList<>();
-        for (Sale s : sales.stream().toList()) {
+        for (Sale s : sales) {
             salesDto.add(saleMapper.toDto(s));
         }
-        SaleDto[] salesArray = new SaleDto[sales.size()];
+        SaleDto[] salesArray = new SaleDto[salesDto.size()];
         salesDto.toArray(salesArray);
         return salesArray;
-    }
-
-    public SaleDto[] update() throws IOException, InvalidFormatException {
-        Set<Sale> sales = excelParser.updateData();
-        save(sales);
-        return convert(sales);
-    }
-
-    public SaleDto[] get() throws IOException, InvalidFormatException {
-        Set<Sale> sales = excelParser.getInitialData();
-        save(sales);
-        return convert(sales);
     }
 }

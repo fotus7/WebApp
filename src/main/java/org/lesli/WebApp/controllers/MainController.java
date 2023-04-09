@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
-import java.util.List;
 
 @RestController
 @RequestMapping("/sales")
@@ -22,6 +21,6 @@ public class MainController {
     @GetMapping
     @CrossOrigin(origins = "*")
     public SaleDto[] getSales() throws IOException, InvalidFormatException {
-        return saleService.get();
+        return saleService.getData();
     }
 }
