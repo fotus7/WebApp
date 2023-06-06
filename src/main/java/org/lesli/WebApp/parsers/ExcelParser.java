@@ -2,8 +2,7 @@ package org.lesli.WebApp.parsers;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.lesli.WebApp.model.Company;
 import org.lesli.WebApp.model.Product;
@@ -14,8 +13,7 @@ import org.lesli.WebApp.repository.SaleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.nio.charset.Charset;
 import java.util.*;
 
@@ -32,6 +30,7 @@ public class ExcelParser {
     private final List<Company> companies = new ArrayList<>();
     private final List<Product> products = new ArrayList<>();
 
+    //Used to populate the database with already existing data from past years
     public Set<Sale> getInitialData() throws IOException, InvalidFormatException {
         Set<Sale> sales = new TreeSet<>();
         Iterator<File> it = FileUtils.iterateFiles(new File("src/main/resources/"), new String[]{"xlsx", "xlsm"}, false);
@@ -44,6 +43,7 @@ public class ExcelParser {
         return sales;
     }
 
+    //Used to get new data from daily updated current year file
     public Set<Sale> updateData() throws IOException, InvalidFormatException {
         Set<Sale> sales = new TreeSet<>();
         Iterator<File> it = FileUtils.iterateFiles(new File("src/main/resources/new"), new String[]{"xlsx", "xlsm"}, false);
@@ -51,6 +51,42 @@ public class ExcelParser {
             sales.addAll(ultimateParser(it.next()));
         }
         return sales;
+    }
+
+    //Used once for rewriting data for GitHub placement of the project
+    public void rewriteData(String path) throws IOException {
+        String excelPath;
+        Iterator<File> it = FileUtils.iterateFiles(new File(path), new String[]{"xlsx", "xlsm"}, false);
+        while (it.hasNext()) {
+            excelPath = it.next().getPath();
+            rewrite(excelPath);
+        }
+    }
+
+    private void rewrite(String excelPath) throws IOException {
+        Cell cell;
+        FileInputStream inputStream = new FileInputStream(excelPath);
+        Workbook workbook = new XSSFWorkbook(inputStream);
+        Sheet sheet = workbook.getSheetAt(0);
+        for (int i = 1; !sheet.getRow(i).getCell(0).getCellType().toString().equals("STRING"); i++) {
+            cell = sheet.getRow(i).getCell(1);
+            cell.setCellValue("Компания #" + companyRepository.findByNameIs(cell.getStringCellValue()).getId());
+        }
+        for (int i = 2; !sheet.getRow(0).getCell(i).getStringCellValue().equals("Итого"); i++) {
+            cell = sheet.getRow(0).getCell(i);
+            try {
+                cell.setCellValue("Продукт #" + productRepository.findByNameIs(cell.getStringCellValue()).getId());
+            } catch (NullPointerException ex) {
+                System.out.println("Product " + cell.getStringCellValue() + " was never bought");
+                cell.setCellValue("Некупленный продукт");
+            }
+        }
+        inputStream.close();
+        FileOutputStream outputStream = new FileOutputStream(excelPath);
+        workbook.write(outputStream);
+        workbook.close();
+        outputStream.close();
+        System.out.println("Rewriting for file " + excelPath + " done");
     }
 
     private Set<Sale> ultimateParser(File file) throws IOException, InvalidFormatException {
@@ -84,7 +120,6 @@ public class ExcelParser {
             }
         }
         workbook.close();
-        //test(sales);
         return sales;
     }
 
@@ -101,7 +136,7 @@ public class ExcelParser {
         return new Sale(date, c, p, amount);
     }
 
-    private int getRowNum(Sheet sheet) throws IOException, InvalidFormatException {
+    private int getRowNum(Sheet sheet) {
         Sale lastAddedSale = saleRepository.findTopByOrderByIdDesc();
         if (lastAddedSale == null) return 1;
         Date date;
